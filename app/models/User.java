@@ -4,10 +4,13 @@ import io.ebean.Finder;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name="users")
 public class User extends Model {
 
   @Id
@@ -17,6 +20,7 @@ public class User extends Model {
   public String email;
 
   @Constraints.Required
+  @Column(name="password")
   public String hashedPassword;
 
   @Constraints.Required
@@ -24,8 +28,6 @@ public class User extends Model {
 
   @Constraints.Required
   public String username;
-
-  public boolean done;
 
   public static final Finder<Long, User> find = new Finder<>(User.class);
 

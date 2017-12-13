@@ -17,8 +17,8 @@ public class AuthController extends Controller {
   private final AuthService authService;
 
   public static class UserLoginData {
-    String email;
-    String password;
+    public String email;
+    public String password;
   }
 
   @Inject
