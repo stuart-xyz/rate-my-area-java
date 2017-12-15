@@ -5,5 +5,6 @@
 GET     /                           controllers.IndexController.index
 
 POST    /login                      controllers.AuthController.login
+POST    /signup                     controllers.AuthController.signup
 
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

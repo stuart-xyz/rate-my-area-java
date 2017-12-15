@@ -21,6 +21,12 @@ public class AuthController extends Controller {
     public String password;
   }
 
+  public static class UserSignupData {
+    public String email;
+    public String username;
+    public String password;
+  }
+
   @Inject
   public AuthController(AuthService authService) {
     this.authService = authService;
@@ -38,6 +44,20 @@ public class AuthController extends Controller {
       responseJson.put("error", "Invalid login credentials provided");
       return unauthorized(Json.toJson(responseJson));
     }
+  }
+
+  public Result signup() {
+    JsonNode json = request().body().asJson();
+    UserSignupData userSignupData = Json.fromJson(json, UserSignupData.class);
+    final HashMap<String, String> responseJson = new HashMap<>();
+    try {
+      this.authService.signup(userSignupData.email, userSignupData.username, userSignupData.password);
+    } catch (Exception e) {
+      responseJson.put("message", "An error occurred creating this user");
+      return internalServerError(Json.toJson(responseJson));
+    }
+    responseJson.put("message", "Signup was successful");
+    return ok(Json.toJson(responseJson));
   }
 
 }

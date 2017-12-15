@@ -21,6 +21,10 @@ public class AuthService {
   private final String cookieHeader = "X-Auth-Token";
 
   public static class HashedPasswordWithSalt {
+    public HashedPasswordWithSalt(String hashedPassword, String salt) {
+      this.hashedPassword = hashedPassword;
+      this.salt = salt;
+    }
     public String hashedPassword;
     public String salt;
   }
@@ -38,6 +42,30 @@ public class AuthService {
       if (BCrypt.checkpw(password, user.hashedPassword)) return generateCookie(user);
       else return null;
     });
+  }
+
+  public void logout(Http.RequestHeader header) throws Exception {
+    final Http.Cookie cookie = header.cookies().get(cookieHeader);
+    if (cookie == null) throw new Exception();
+    else this.cacheApi.remove(cookie.value());
+  }
+
+  public void signup(String email, String username, String password) {
+    final HashedPasswordWithSalt hashedPasswordWithSalt = hashPasswordWithSalt(password);
+    final User user = new User(email, hashedPasswordWithSalt.hashedPassword, hashedPasswordWithSalt.salt, username);
+    databaseService.addUser(user);
+  }
+
+  private HashedPasswordWithSalt hashPasswordWithSalt(String password) {
+    final String salt = BCrypt.gensalt();
+    final String hashedPassword = BCrypt.hashpw(password, salt);
+    return new HashedPasswordWithSalt(hashedPassword, salt);
+  }
+
+  private Optional<User> checkCookie(Http.RequestHeader header) {
+    final Http.Cookie cookie = header.cookies().get(cookieHeader);
+    if (cookie == null) return Optional.empty();
+    else return this.cacheApi.get(cookie.value());
   }
 
   private Http.Cookie generateCookie(User user) {
