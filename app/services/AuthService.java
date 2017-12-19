@@ -63,9 +63,8 @@ public class AuthService {
   }
 
   public Optional<User> checkCookie(Http.RequestHeader header) {
-    final Http.Cookie cookie = header.cookies().get(cookieHeader);
-    if (cookie == null) return Optional.empty();
-    else return this.cacheApi.get(cookie.value());
+    final Optional<Http.Cookie> cookieOption = Optional.ofNullable(header.cookies().get(cookieHeader));
+    return cookieOption.flatMap(cookie -> Optional.ofNullable(this.cacheApi.get(cookie.value())));
   }
 
   private Http.Cookie generateCookie(User user) {

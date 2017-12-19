@@ -41,6 +41,7 @@ public class AuthController extends Controller {
     final HashMap<String, String> responseJson = new HashMap<>();
     if (cookieOption.isPresent()) {
       responseJson.put("message", "Log in successful");
+      response().setCookie(cookieOption.get());
       return ok(Json.toJson(responseJson));
     } else {
       responseJson.put("error", "Invalid login credentials provided");
