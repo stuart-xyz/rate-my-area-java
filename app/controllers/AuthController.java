@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -10,6 +11,7 @@ import services.AuthService;
 import services.CustomExceptions;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -78,7 +80,9 @@ public class AuthController extends Controller {
 
   @With(UserAuthAction.class)
   public Result getUser() {
-    return ok(Json.toJson(ctx().args.get("user")));
+    ObjectNode userWithoutPassword = (ObjectNode) Json.toJson(ctx().args.get("user"));
+    userWithoutPassword.remove(Arrays.asList("hashedPassword", "salt"));
+    return ok(userWithoutPassword);
   }
 
 }
