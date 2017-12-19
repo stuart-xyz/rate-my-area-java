@@ -1,10 +1,13 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET     /                           controllers.IndexController.index
+GET     /               controllers.IndexController.index
 
-POST    /login                      controllers.AuthController.login
-POST    /signup                     controllers.AuthController.signup
+GET     /user           controllers.AuthController.getUser
+POST    /login          controllers.AuthController.login
+POST    /signup         controllers.AuthController.signup
+GET     /logout         controllers.AuthController.logout
 
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)

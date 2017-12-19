@@ -18,7 +18,7 @@ public class AuthService {
   private final DatabaseService databaseService;
   private final SyncCacheApi cacheApi;
   private final MessageDigest mda;
-  private final String cookieHeader = "X-Auth-Token";
+  public final static String cookieHeader = "X-Auth-Token";
 
   public static class HashedPasswordWithSalt {
     public HashedPasswordWithSalt(String hashedPassword, String salt) {
@@ -44,9 +44,9 @@ public class AuthService {
     });
   }
 
-  public void logout(Http.RequestHeader header) throws Exception {
+  public void logout(Http.RequestHeader header) throws CustomExceptions.UserNotLoggedInException {
     final Http.Cookie cookie = header.cookies().get(cookieHeader);
-    if (cookie == null) throw new Exception();
+    if (cookie == null) throw new CustomExceptions.UserNotLoggedInException();
     else this.cacheApi.remove(cookie.value());
   }
 
@@ -62,7 +62,7 @@ public class AuthService {
     return new HashedPasswordWithSalt(hashedPassword, salt);
   }
 
-  private Optional<User> checkCookie(Http.RequestHeader header) {
+  public Optional<User> checkCookie(Http.RequestHeader header) {
     final Http.Cookie cookie = header.cookies().get(cookieHeader);
     if (cookie == null) return Optional.empty();
     else return this.cacheApi.get(cookie.value());
