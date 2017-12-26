@@ -13,5 +13,8 @@ libraryDependencies ++= Seq(
   javaJdbc,
   ehcache,
   "org.postgresql" % "postgresql" % "9.4.1207.jre7",
-  "de.svenkubiak" % "jBCrypt" % "0.4.1"
+  "de.svenkubiak" % "jBCrypt" % "0.4.1",
+  "com.h2database" % "h2" % "1.4.196" % Test
 )
+
+javaOptions in Test ++= Seq("-Dconfig.file=conf/application.test.conf")
