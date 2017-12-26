@@ -1,0 +1,87 @@
+version: 2
+jobs:
+  build-frontend:
+    docker:
+      - image: circleci/node:8.9.3
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: git submodule init && git submodule update
+      - restore_cache:
+          keys:
+          - frontend-dependencies-{{ checksum "ui/package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - frontend-dependencies-
+      - run: cd ui && npm install
+      - run: cd ui && npm test
+      - run: cd ui && npm run build
+      - save_cache:
+          paths:
+            - ui/node_modules
+          key: v1-dependencies-{{ checksum "ui/package.json" }}
+      - run: mkdir -p /tmp/workspace/ui
+      - run: cp -r ui/build /tmp/workspace/ui/build
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - ui/build
+
+  build-backend:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - backend-dependencies-{{ checksum "build.sbt" }}
+          # fallback to using the latest cache if no exact match is found
+          - backend-dependencies-
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: mkdir -p public/compiled
+      - run: cp /tmp/workspace/ui/build/* public/compiled
+      - run: cat /dev/null | sbt test:compile
+      - run: cat /dev/null | sbt test:test
+      - run: cat /dev/null | sbt dist
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "build.sbt" }}
+      - store_artifacts:
+          path: target/universal/rate-my-area-1.0-SNAPSHOT.zip
+          destination: build
+      - run: mkdir -p /tmp/workspace/backend
+      - run: cp target/universal/rate-my-area-1.0-SNAPSHOT.zip /tmp/workspace/backend
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - backend
+
+  deploy:
+    machine: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: mkdir -p target/universal
+      - run: cp /tmp/workspace/backend/rate-my-area-1.0-SNAPSHOT.zip target/universal
+      - run: docker build -t $AWS_REPOSITORY_URL/stuartp.io/ratemyarea:java --build-arg BUILD_ENV=prod .
+      - run: $(aws ecr get-login --region eu-west-2 --no-include-email)
+      - run: docker push $AWS_REPOSITORY_URL/stuartp.io/ratemyarea:java
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build-frontend
+      - build-backend:
+          requires:
+            - build-frontend
+      - deploy:
+          requires:
+            - build-backend
+          filters:
+            branches:
+              only: master
