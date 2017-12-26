@@ -5,6 +5,8 @@ import io.ebean.Model;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.List;
+
 
 @Entity
 @Table(name="users")
@@ -15,17 +17,17 @@ public class User extends Model {
   public Long id;
 
   @Constraints.Required
-  public String email;
+  public final String email;
 
   @Constraints.Required
   @Column(name="password")
-  public String hashedPassword;
+  public final String hashedPassword;
 
   @Constraints.Required
-  public String salt;
+  public final String salt;
 
   @Constraints.Required
-  public String username;
+  public final String username;
 
   public User(String email, String hashedPassword, String salt, String username) {
     this.email = email;
@@ -35,5 +37,8 @@ public class User extends Model {
   }
 
   public static final Finder<Long, User> find = new Finder<>(User.class);
+
+  @OneToMany(cascade = CascadeType.ALL)
+  public List<Review> reviews;
 
 }

@@ -56,15 +56,15 @@ public class AuthController extends Controller {
 
   public Result login() {
     final HashMap<String, String> responseJson = new HashMap<>();
-    Optional<JsonNode> jsonOption = Optional.ofNullable(request().body().asJson());
+    final Optional<JsonNode> jsonOption = Optional.ofNullable(request().body().asJson());
     if (jsonOption.isPresent()) {
-      Form<UserLoginData> userLoginForm = formFactory.form(UserLoginData.class).bind(jsonOption.get());
+      final Form<UserLoginData> userLoginForm = formFactory.form(UserLoginData.class).bind(jsonOption.get());
       if (userLoginForm.hasErrors()) {
         responseJson.put("error", "Expected email and password");
         return badRequest(Json.toJson(responseJson));
       }
 
-      Optional<Http.Cookie> cookieOption;
+      final Optional<Http.Cookie> cookieOption;
       try {
         cookieOption = authService.login(userLoginForm.get().email, userLoginForm.get().password);
       } catch (Exception e) {
@@ -89,9 +89,9 @@ public class AuthController extends Controller {
 
   public Result signup() {
     final HashMap<String, String> responseJson = new HashMap<>();
-    Optional<JsonNode> jsonOption = Optional.ofNullable(request().body().asJson());
+    final Optional<JsonNode> jsonOption = Optional.ofNullable(request().body().asJson());
     if (jsonOption.isPresent()) {
-      Form<UserSignupData> userSignupForm = formFactory.form(UserSignupData.class).bind(jsonOption.get());
+      final Form<UserSignupData> userSignupForm = formFactory.form(UserSignupData.class).bind(jsonOption.get());
       if (userSignupForm.hasErrors()) {
         responseJson.put("error", "Invalid email, username or password");
         return badRequest(Json.toJson(responseJson));
@@ -100,7 +100,7 @@ public class AuthController extends Controller {
       try {
         this.authService.signup(userSignupForm.get().email, userSignupForm.get().username, userSignupForm.get().password);
       } catch (Exception e) {
-        responseJson.put("error", "An error occurred creating this user");
+        responseJson.put("error", "Unexpected internal error occurred");
         return internalServerError(Json.toJson(responseJson));
       }
 
@@ -113,6 +113,7 @@ public class AuthController extends Controller {
     }
   }
 
+  @With(UserAuthAction.class)
   public Result logout() {
     final HashMap<String, String> responseJson = new HashMap<>();
     try {
@@ -123,6 +124,9 @@ public class AuthController extends Controller {
     } catch (CustomExceptions.CookieNotPresentException e) {
       responseJson.put("Error", "Unauthorised");
       return unauthorized(Json.toJson(responseJson));
+    } catch (Exception e) {
+      responseJson.put("Error", "Unexpected internal error occurred");
+      return internalServerError(Json.toJson(responseJson));
     }
 
     responseJson.put("message", "Successfully logged out");
@@ -132,7 +136,7 @@ public class AuthController extends Controller {
 
   @With(UserAuthAction.class)
   public Result getUser() {
-    ObjectNode userWithoutPassword = (ObjectNode) Json.toJson(ctx().args.get("user"));
+    final ObjectNode userWithoutPassword = (ObjectNode) Json.toJson(ctx().args.get("user"));
     userWithoutPassword.remove(Arrays.asList("hashedPassword", "salt"));
     return ok(userWithoutPassword);
   }

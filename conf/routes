@@ -10,4 +10,7 @@ POST    /login          controllers.AuthController.login
 POST    /signup         controllers.AuthController.signup
 GET     /logout         controllers.AuthController.logout
 
+GET     /reviews        controllers.ReviewController.list
+POST    /reviews        controllers.ReviewController.create
+
 GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)

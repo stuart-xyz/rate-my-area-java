@@ -29,7 +29,7 @@ public class UserAuthAction extends play.mvc.Action.Simple {
       return delegate.call(ctx);
     } else {
       final HashMap<String, String> responseJson = new HashMap<>();
-      responseJson.put("error", "unauthorised");
+      responseJson.put("error", "Unauthorised");
       return CompletableFuture.completedFuture(unauthorized(Json.toJson(responseJson)));
     }
   }

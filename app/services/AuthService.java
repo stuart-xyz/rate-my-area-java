@@ -13,6 +13,7 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
 
+
 public class AuthService {
 
   private final DatabaseService databaseService;
