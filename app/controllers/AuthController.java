@@ -25,22 +25,26 @@ public class AuthController extends Controller {
   private final FormFactory formFactory;
 
   public static class UserLoginData {
-    private String email;
-    public String password;
-
+    @Constraints.Required
     @Constraints.Email
-    public String getEmail() {
-      return this.email;
-    }
+    public String email;
 
-    public void setEmail(String email) {
-      this.email = email;
-    }
+    @Constraints.Required
+    @Constraints.MinLength(1)
+    public String password;
   }
 
   public static class UserSignupData {
+    @Constraints.Required
+    @Constraints.Email
     public String email;
+
+    @Constraints.Required
+    @Constraints.MinLength(1)
     public String username;
+
+    @Constraints.Required
+    @Constraints.MinLength(1)
     public String password;
   }
 
@@ -58,17 +62,25 @@ public class AuthController extends Controller {
       if (userLoginForm.hasErrors()) {
         responseJson.put("error", "Expected email and password");
         return badRequest(Json.toJson(responseJson));
-      } else {
-        final Optional<Http.Cookie> cookieOption = authService.login(userLoginForm.get().email, userLoginForm.get().password);
-        if (cookieOption.isPresent()) {
-          responseJson.put("message", "Log in successful");
-          response().setCookie(cookieOption.get());
-          return ok(Json.toJson(responseJson));
-        } else {
-          responseJson.put("error", "Invalid login credentials provided");
-          return unauthorized(Json.toJson(responseJson));
-        }
       }
+
+      Optional<Http.Cookie> cookieOption;
+      try {
+        cookieOption = authService.login(userLoginForm.get().email, userLoginForm.get().password);
+      } catch (Exception e) {
+        responseJson.put("Error", "Unexpected internal error occurred");
+        return internalServerError(Json.toJson(responseJson));
+      }
+
+      if (cookieOption.isPresent()) {
+        responseJson.put("message", "Log in successful");
+        response().setCookie(cookieOption.get());
+        return ok(Json.toJson(responseJson));
+      } else {
+        responseJson.put("error", "Invalid login credentials provided");
+        return unauthorized(Json.toJson(responseJson));
+      }
+
     } else {
       responseJson.put("error", "Expected JSON body");
       return badRequest(Json.toJson(responseJson));
@@ -76,17 +88,29 @@ public class AuthController extends Controller {
   }
 
   public Result signup() {
-    JsonNode json = request().body().asJson();
-    UserSignupData userSignupData = Json.fromJson(json, UserSignupData.class);
     final HashMap<String, String> responseJson = new HashMap<>();
-    try {
-      this.authService.signup(userSignupData.email, userSignupData.username, userSignupData.password);
-    } catch (Exception e) {
-      responseJson.put("error", "An error occurred creating this user");
-      return internalServerError(Json.toJson(responseJson));
+    Optional<JsonNode> jsonOption = Optional.ofNullable(request().body().asJson());
+    if (jsonOption.isPresent()) {
+      Form<UserSignupData> userSignupForm = formFactory.form(UserSignupData.class).bind(jsonOption.get());
+      if (userSignupForm.hasErrors()) {
+        responseJson.put("error", "Invalid email, username or password");
+        return badRequest(Json.toJson(responseJson));
+      }
+
+      try {
+        this.authService.signup(userSignupForm.get().email, userSignupForm.get().username, userSignupForm.get().password);
+      } catch (Exception e) {
+        responseJson.put("error", "An error occurred creating this user");
+        return internalServerError(Json.toJson(responseJson));
+      }
+
+      responseJson.put("message", "Signup was successful");
+      return ok(Json.toJson(responseJson));
+
+    } else {
+      responseJson.put("error", "Expected JSON body");
+      return badRequest(Json.toJson(responseJson));
     }
-    responseJson.put("message", "Signup was successful");
-    return ok(Json.toJson(responseJson));
   }
 
   public Result logout() {
@@ -96,7 +120,11 @@ public class AuthController extends Controller {
     } catch (CustomExceptions.UserNotLoggedInException e) {
       responseJson.put("error", "The specified authentication token is not active");
       return badRequest(Json.toJson(responseJson));
+    } catch (CustomExceptions.CookieNotPresentException e) {
+      responseJson.put("Error", "Unauthorised");
+      return unauthorized(Json.toJson(responseJson));
     }
+
     responseJson.put("message", "Successfully logged out");
     response().discardCookie(AuthService.cookieHeader);
     return ok(Json.toJson(responseJson));

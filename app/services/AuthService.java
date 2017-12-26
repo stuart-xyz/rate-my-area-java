@@ -44,10 +44,15 @@ public class AuthService {
     });
   }
 
-  public void logout(Http.RequestHeader header) throws CustomExceptions.UserNotLoggedInException {
-    final Http.Cookie cookie = header.cookies().get(cookieHeader);
-    if (cookie == null) throw new CustomExceptions.UserNotLoggedInException();
-    else this.cacheApi.remove(cookie.value());
+  public void logout(Http.RequestHeader header) throws CustomExceptions.UserNotLoggedInException, CustomExceptions.CookieNotPresentException {
+    final Optional<Http.Cookie> cookieOption = Optional.ofNullable(header.cookies().get(cookieHeader));
+    if (!cookieOption.isPresent()) {
+      throw new CustomExceptions.CookieNotPresentException();
+    } else if (Optional.ofNullable(this.cacheApi.get(cookieOption.get().value())).isPresent()) {
+      this.cacheApi.remove(cookieOption.get().value());
+    } else {
+      throw new CustomExceptions.UserNotLoggedInException();
+    }
   }
 
   public void signup(String email, String username, String password) {
