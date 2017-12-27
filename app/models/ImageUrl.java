@@ -12,7 +12,7 @@ import javax.persistence.*;
 public class ImageUrl extends Model {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   public Long id;
 
   @Constraints.Required
@@ -20,13 +20,20 @@ public class ImageUrl extends Model {
 
   @Constraints.Required
   @Column(name="review_id")
-  public final Long reviewId;
+  public Long reviewId;
 
-  public ImageUrl(String url, Long reviewId) {
+  public ImageUrl(String url) {
     this.url = url;
-    this.reviewId = reviewId;
   }
 
   public static final Finder<Long, ImageUrl> find = new Finder<>(ImageUrl.class);
+
+  @ManyToOne @JoinColumn(name="review_id", referencedColumnName="id")
+  public Review associatedReview;
+
+  public void setAssociatedReview(Review review) {
+    this.associatedReview = review;
+    this.reviewId = review.id;
+  }
 
 }

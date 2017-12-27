@@ -13,7 +13,7 @@ import java.util.List;
 public class User extends Model {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   public Long id;
 
   @Constraints.Required
@@ -38,7 +38,7 @@ public class User extends Model {
 
   public static final Finder<Long, User> find = new Finder<>(User.class);
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(cascade=CascadeType.ALL, mappedBy="associatedUser")
   public List<Review> reviews;
 
 }

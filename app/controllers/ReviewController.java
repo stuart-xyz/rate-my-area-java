@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import models.DisplayedReview;
+import models.ImageUrl;
 import models.Review;
 import models.User;
 import play.data.Form;
@@ -38,7 +39,7 @@ public class ReviewController extends Controller {
     public String description;
 
     @Constraints.Required
-    public String[] imageUrls;
+    public List<String> imageUrls;
   }
 
   @Inject
@@ -60,8 +61,11 @@ public class ReviewController extends Controller {
 
       final User user = (User) ctx().args.get("user");
       final ReviewFormData reviewFormData = reviewForm.get();
+      final Review review = new Review(reviewFormData.title, reviewFormData.areaName, reviewFormData.description, user.id);
+      reviewFormData.imageUrls.forEach(url -> review.addImageUrl(new ImageUrl(url)));
+
       try {
-        this.databaseService.addReview(new Review(reviewFormData.title, reviewFormData.areaName, reviewFormData.description, user.id));
+        this.databaseService.addReview(review);
       } catch(Exception e) {
         responseJson.put("Error", "Unexpected internal error occurred");
         return internalServerError(Json.toJson(responseJson));

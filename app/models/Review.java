@@ -13,7 +13,7 @@ import java.util.List;
 public class Review extends Model {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   public Long id;
 
   @Constraints.Required
@@ -39,7 +39,16 @@ public class Review extends Model {
 
   public static final Finder<Long, Review> find = new Finder<>(Review.class);
 
-  @OneToMany(cascade = CascadeType.ALL)
+  @ManyToOne
+  @JoinColumn(name="user_id", referencedColumnName="id")
+  public User associatedUser;
+
+  @OneToMany(cascade=CascadeType.ALL, mappedBy="associatedReview")
   public List<ImageUrl> imageUrls;
+
+  public void addImageUrl(ImageUrl imageUrl) {
+    imageUrl.setAssociatedReview(this);
+    this.imageUrls.add(imageUrl);
+  }
 
 }
