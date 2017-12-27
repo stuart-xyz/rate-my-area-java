@@ -5,6 +5,7 @@ import io.ebean.Model;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -38,7 +39,7 @@ public class User extends Model {
 
   public static final Finder<Long, User> find = new Finder<>(User.class);
 
-  @OneToMany(cascade=CascadeType.ALL, mappedBy="associatedUser")
-  public List<Review> reviews;
+  @OneToMany(cascade=CascadeType.ALL)
+  public List<Review> reviews = new ArrayList<>();
 
 }

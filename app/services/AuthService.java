@@ -59,7 +59,7 @@ public class AuthService {
   public void signup(String email, String username, String password) {
     final HashedPasswordWithSalt hashedPasswordWithSalt = hashPasswordWithSalt(password);
     final User user = new User(email, hashedPasswordWithSalt.hashedPassword, hashedPasswordWithSalt.salt, username);
-    databaseService.addUser(user);
+    user.save();
   }
 
   private HashedPasswordWithSalt hashPasswordWithSalt(String password) {

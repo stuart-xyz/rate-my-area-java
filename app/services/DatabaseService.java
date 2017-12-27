@@ -1,8 +1,6 @@
 package services;
 
-import io.ebean.Ebean;
 import models.DisplayedReview;
-import models.ImageUrl;
 import models.Review;
 import models.User;
 
@@ -17,20 +15,12 @@ public class DatabaseService {
     return User.find.query().where().ieq("email", email).findOneOrEmpty();
   }
 
-  void addUser(User user) {
-    Ebean.save(user);
-  }
-
   public List<DisplayedReview> listReviews() {
     final List<User> users = User.find.all();
     return users.stream().flatMap(user -> {
       final List<Review> reviewsByThisUser = user.reviews;
       return reviewsByThisUser.stream().map(reviewByThisUser -> new DisplayedReview(reviewByThisUser, user.username));
     }).collect(Collectors.toList());
-  }
-
-  public void addReview(Review review) {
-    Ebean.save(review);
   }
 
 }

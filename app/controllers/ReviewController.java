@@ -61,11 +61,12 @@ public class ReviewController extends Controller {
 
       final User user = (User) ctx().args.get("user");
       final ReviewFormData reviewFormData = reviewForm.get();
-      final Review review = new Review(reviewFormData.title, reviewFormData.areaName, reviewFormData.description, user.id);
-      reviewFormData.imageUrls.forEach(url -> review.addImageUrl(new ImageUrl(url)));
+      final Review review = new Review(reviewFormData.title, reviewFormData.areaName, reviewFormData.description);
+      reviewFormData.imageUrls.forEach(url -> review.imageUrls.add(new ImageUrl(url)));
+      user.reviews.add(review);
 
       try {
-        this.databaseService.addReview(review);
+        user.save();
       } catch(Exception e) {
         responseJson.put("Error", "Unexpected internal error occurred");
         return internalServerError(Json.toJson(responseJson));
