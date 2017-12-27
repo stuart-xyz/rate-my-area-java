@@ -2,6 +2,8 @@ package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.DuplicateKeyException;
+import org.postgresql.util.PSQLException;
 import play.data.Form;
 import play.data.FormFactory;
 import play.data.validation.Constraints;
@@ -99,6 +101,9 @@ public class AuthController extends Controller {
 
       try {
         this.authService.signup(userSignupForm.get().email, userSignupForm.get().username, userSignupForm.get().password);
+      } catch (DuplicateKeyException e) {
+        responseJson.put("error", ((PSQLException) e.getCause()).getServerErrorMessage().getConstraint());
+        return status(CONFLICT, Json.toJson(responseJson));
       } catch (Exception e) {
         responseJson.put("error", "Unexpected internal error occurred");
         return internalServerError(Json.toJson(responseJson));
