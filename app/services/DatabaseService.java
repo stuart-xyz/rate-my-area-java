@@ -1,5 +1,6 @@
 package services;
 
+import io.ebean.Ebean;
 import models.DisplayedReview;
 import models.Review;
 import models.User;
@@ -21,6 +22,28 @@ public class DatabaseService {
       final List<Review> reviewsByThisUser = user.reviews;
       return reviewsByThisUser.stream().map(reviewByThisUser -> new DisplayedReview(reviewByThisUser, user.username));
     }).collect(Collectors.toList());
+  }
+
+  public void updateReview(Long id, Review updatedReview) throws CustomExceptions.ReviewNotFoundException {
+    Optional<Review> reviewOption = Optional.ofNullable(Ebean.find(Review.class, id));
+    if (reviewOption.isPresent()) {
+      Review review = reviewOption.get();
+      Optional.ofNullable(updatedReview.getTitle()).ifPresent(review::setTitle);
+      Optional.ofNullable(updatedReview.getAreaName()).ifPresent(review::setAreaName);
+      Optional.ofNullable(updatedReview.getDescription()).ifPresent(review::setDescription);
+      Ebean.save(review);
+    } else {
+      throw new CustomExceptions.ReviewNotFoundException();
+    }
+  }
+
+  public Review getReview(Long id) throws CustomExceptions.ReviewNotFoundException {
+    final Optional<Review> reviewOption = Review.find.query().where().eq("id", id).findOneOrEmpty();
+    if (reviewOption.isPresent()) {
+      return reviewOption.get();
+    } else {
+      throw new CustomExceptions.ReviewNotFoundException();
+    }
   }
 
 }

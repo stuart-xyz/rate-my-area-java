@@ -19,17 +19,41 @@ public class Review extends Model {
   public Long id;
 
   @Constraints.Required
-  public final String title;
+  private String title;
 
   @Constraints.Required
   @Column(name="area_name")
-  public final String areaName;
+  private String areaName;
 
   @Constraints.Required
-  public final String description;
+  private String description;
 
   @ManyToOne @JsonIgnore
   public User user;
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public String getAreaName() {
+    return areaName;
+  }
+
+  public void setAreaName(String areaName) {
+    this.areaName = areaName;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
   public Review(String title, String areaName, String description) {
     this.title = title;
