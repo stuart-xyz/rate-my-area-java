@@ -5,3 +5,4 @@
 /.idea/
 /public/compiled/
 .DS_Store
+/conf/production.conf

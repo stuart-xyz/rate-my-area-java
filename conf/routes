@@ -5,6 +5,8 @@
 
 GET     /               controllers.IndexController.index
 
+POST    /upload         controllers.UploadController.upload
+
 GET     /user           controllers.AuthController.getUser
 POST    /login          controllers.AuthController.login
 POST    /signup         controllers.AuthController.signup
