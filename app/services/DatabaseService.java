@@ -16,6 +16,15 @@ public class DatabaseService {
     return User.find.query().where().ieq("email", email).findOneOrEmpty();
   }
 
+  public Review getReview(Long id) throws CustomExceptions.ReviewNotFoundException {
+    final Optional<Review> reviewOption = Review.find.query().where().eq("id", id).findOneOrEmpty();
+    if (reviewOption.isPresent()) {
+      return reviewOption.get();
+    } else {
+      throw new CustomExceptions.ReviewNotFoundException();
+    }
+  }
+
   public List<DisplayedReview> listReviews() {
     final List<User> users = User.find.all();
     return users.stream().flatMap(user -> {
@@ -37,10 +46,10 @@ public class DatabaseService {
     }
   }
 
-  public Review getReview(Long id) throws CustomExceptions.ReviewNotFoundException {
-    final Optional<Review> reviewOption = Review.find.query().where().eq("id", id).findOneOrEmpty();
+  public void deleteReview(Long id) throws CustomExceptions.ReviewNotFoundException {
+    Optional<Review> reviewOption = Optional.ofNullable(Ebean.find(Review.class, id));
     if (reviewOption.isPresent()) {
-      return reviewOption.get();
+      reviewOption.get().delete();
     } else {
       throw new CustomExceptions.ReviewNotFoundException();
     }

@@ -15,5 +15,6 @@ GET     /logout         controllers.AuthController.logout
 GET     /reviews        controllers.ReviewController.list
 POST    /reviews        controllers.ReviewController.create
 PATCH   /reviews/:id    controllers.ReviewController.edit(id: Long)
+DELETE  /reviews/:id    controllers.ReviewController.delete(id: Long)
 
 GET     /assets/*file   controllers.Assets.versioned(path="/public", file: Asset)
