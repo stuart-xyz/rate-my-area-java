@@ -12,9 +12,9 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.With;
+import services.AbstractS3Service;
 import services.CustomExceptions;
 import services.DatabaseService;
-import services.S3Service;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ public class ReviewController extends Controller {
 
   private final FormFactory formFactory;
   private final DatabaseService databaseService;
-  private final S3Service s3Service;
+  private final AbstractS3Service s3Service;
 
   public static class ReviewFormData {
     @Constraints.Required
@@ -61,7 +61,7 @@ public class ReviewController extends Controller {
   }
 
   @Inject
-  public ReviewController(FormFactory formFactory, DatabaseService databaseService, S3Service s3Service) {
+  public ReviewController(FormFactory formFactory, DatabaseService databaseService, AbstractS3Service s3Service) {
     this.formFactory = formFactory;
     this.databaseService = databaseService;
     this.s3Service = s3Service;

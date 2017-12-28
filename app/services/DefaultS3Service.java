@@ -14,13 +14,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 
-public class S3Service {
+public class DefaultS3Service implements AbstractS3Service {
 
   private final String configuredBucketName;
   private final AmazonS3 s3Client;
 
   @Inject
-  public S3Service(Configuration appConfig) {
+  public DefaultS3Service(Configuration appConfig) {
     this.configuredBucketName = appConfig.getString("s3-bucket-name", Option.empty()).get();
     final String regionName = appConfig.getString("s3-region", Option.empty()).get();
     final String accessKey = appConfig.getString("s3-access-key", Option.empty()).get();

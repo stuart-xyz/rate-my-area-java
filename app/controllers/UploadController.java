@@ -1,13 +1,12 @@
 package controllers;
 
 import models.User;
-import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import services.S3Service;
+import services.AbstractS3Service;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -18,10 +17,10 @@ import java.util.stream.Collectors;
 
 public class UploadController extends Controller {
 
-  private final S3Service s3Service;
+  private final AbstractS3Service s3Service;
 
   @Inject
-  public UploadController(S3Service s3Service) {
+  public UploadController(AbstractS3Service s3Service) {
     this.s3Service = s3Service;
   }
 
